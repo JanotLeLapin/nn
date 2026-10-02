@@ -12,6 +12,7 @@ typedef struct
 
 block_t block_alloc (unsigned int width, unsigned int height);
 void block_free (block_t *block);
+void block_print (const block_t *block);
 
 static inline size_t
 block_elem_count (const block_t *b)
