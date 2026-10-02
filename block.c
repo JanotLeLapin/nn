@@ -67,7 +67,7 @@ block_print (const block_t *block)
       print_spaces (stderr, row_margin - digit_count (i));
       for (j = 0; j < max_cols; j++)
         {
-          fprintf (stderr, " %.2f", block->data[i * block->dims[0] + j]);
+          fprintf (stderr, " %.2f", block->data[i * block->dims[1] + j]);
         }
 
       fprintf (stderr, "\n");
