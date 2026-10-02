@@ -17,6 +17,6 @@ test: nn-test
 	./nn-test
 
 clean:
-	rm -rf nn *.o
+	rm -rf nn nn-test *.o
 
 re: clean nn
