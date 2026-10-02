@@ -7,12 +7,16 @@
 #include "instr/relu.h"
 #include "instr/transpose.h"
 
+#define INSTR_TYPE(X)                                                         \
+  X (TRANSPOSE, transpose)                                                    \
+  X (GEMM, gemm)                                                              \
+  X (RELU, relu)
+
 typedef enum
 {
-  INSTR_TYPE_TRANSPOSE,
-  INSTR_TYPE_GEMM,
-
-  INSTR_TYPE_RELU,
+#define X(variant, func) INSTR_TYPE_##variant,
+  INSTR_TYPE (X)
+#undef X
 } instr_type_t;
 
 typedef struct
@@ -30,15 +34,12 @@ instr_apply (instr_t instr, block_t *blocks)
 
   switch (instr.t)
     {
-    case INSTR_TYPE_TRANSPOSE:
-      instr_transpose (dst, src);
-      break;
-    case INSTR_TYPE_GEMM:
-      instr_gemm (dst, src);
-      break;
-    case INSTR_TYPE_RELU:
-      instr_relu (dst, src);
-      break;
+#define X(variant, func)                                                      \
+  case INSTR_TYPE_##variant:                                                  \
+    instr_##func (dst, src);                                                  \
+    break;
+      INSTR_TYPE (X)
+#undef X
     }
 }
 
