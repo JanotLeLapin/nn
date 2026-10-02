@@ -4,12 +4,15 @@
 #include "block.h"
 
 #include "instr/gemm.h"
+#include "instr/relu.h"
 #include "instr/transpose.h"
 
 typedef enum
 {
   INSTR_TYPE_TRANSPOSE,
   INSTR_TYPE_GEMM,
+
+  INSTR_TYPE_RELU,
 } instr_type_t;
 
 typedef struct
@@ -32,6 +35,9 @@ instr_apply (instr_t instr, block_t *blocks)
       break;
     case INSTR_TYPE_GEMM:
       instr_gemm (dst, src);
+      break;
+    case INSTR_TYPE_RELU:
+      instr_relu (dst, src);
       break;
     }
 }
