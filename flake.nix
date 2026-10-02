@@ -28,10 +28,12 @@
           gcc
         ];
 
+        buildInputs = with pkgs; [
+          unity-test
+        ];
+
         buildPhase = ''
           make
-
-          unity-test
         '';
 
         installPhase = ''
