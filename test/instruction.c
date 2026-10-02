@@ -6,23 +6,23 @@
 void
 test_instr_transpose ()
 {
-  block_t a, b, c;
+  block_t b[3];
   float src[6] = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 },
         dst[6] = { 1.0, 4.0, 2.0, 5.0, 3.0, 6.0 };
 
-  a = block_alloc (2, 3);
-  b = block_alloc (3, 2);
-  c = block_alloc (2, 3);
+  b[0] = block_alloc (2, 3);
+  b[1] = block_alloc (3, 2);
+  b[2] = block_alloc (2, 3);
 
-  memcpy (a.data, src, 6 * sizeof (float));
+  memcpy (b[0].data, src, 6 * sizeof (float));
 
-  instr_apply (INSTR_TYPE_TRANSPOSE, &b, &a);
-  instr_apply (INSTR_TYPE_TRANSPOSE, &c, &b);
+  instr_apply ((instr_t){ .t = INSTR_TYPE_TRANSPOSE, .dst = 1, .src = 0 }, b);
+  instr_apply ((instr_t){ .t = INSTR_TYPE_TRANSPOSE, .dst = 2, .src = 1 }, b);
 
-  TEST_ASSERT_FLOAT_ARRAY_WITHIN (0.0, dst, b.data, 6);
-  TEST_ASSERT_FLOAT_ARRAY_WITHIN (0.0, src, c.data, 6);
+  TEST_ASSERT_FLOAT_ARRAY_WITHIN (0.0, dst, b[1].data, 6);
+  TEST_ASSERT_FLOAT_ARRAY_WITHIN (0.0, src, b[2].data, 6);
 
-  block_free (&a);
-  block_free (&b);
-  block_free (&c);
+  block_free (&b[0]);
+  block_free (&b[1]);
+  block_free (&b[2]);
 }
