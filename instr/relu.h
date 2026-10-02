@@ -1,4 +1,5 @@
 #include "../block.h"
+#include "util.h"
 
 static inline float
 relu (float v)
@@ -10,10 +11,5 @@ relu (float v)
 static inline void
 instr_relu (block_t *dst, const block_t *src)
 {
-  size_t i;
-
-  for (i = 0; i < src->dims[0] * src->dims[1]; i++)
-    {
-      dst->data[i] = relu (src->data[i]);
-    }
+  ELEMENT_WISE (dst, src, relu);
 }
