@@ -44,8 +44,11 @@
       default = pkgs.mkShell {
         packages = with pkgs; [
           gcc
-          clang-tools
           gnumake
+
+          clang-tools
+          valgrind
+          gdb
 
           unity-test
         ];
