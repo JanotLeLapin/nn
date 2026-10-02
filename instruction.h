@@ -10,6 +10,13 @@ typedef enum
   INSTR_TYPE_TRANSPOSE,
 } instr_type_t;
 
+typedef struct
+{
+  instr_type_t t;
+  int dst;
+  int src;
+} instr_t;
+
 static inline void
 instr_apply (instr_type_t instr, block_t *dst, const block_t *src)
 {
@@ -20,5 +27,7 @@ instr_apply (instr_type_t instr, block_t *dst, const block_t *src)
       break;
     }
 }
+
+void instr_eval_seq (size_t count, const instr_t *instrs, block_t *blocks);
 
 #endif
