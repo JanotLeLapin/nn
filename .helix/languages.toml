@@ -1,0 +1,13 @@
+[[language]]
+name = "c"
+roots = [".clang-format"]
+file-types = ["c", "h"]
+auto-format = true
+language-servers = ["clangd"]
+
+[[language]]
+name = "cpp"
+roots = [".clang-format"]
+file-types = ["cpp", "hpp"]
+auto-format = true
+language-servers = ["clangd"]
