@@ -14,7 +14,7 @@ test_instr_transpose ()
   b = block_alloc (3, 2);
   c = block_alloc (2, 3);
 
-  mempcpy (a.data, src, 6 * sizeof (float));
+  memcpy (a.data, src, 6 * sizeof (float));
 
   instr_apply (INSTR_TYPE_TRANSPOSE, &b, &a);
   instr_apply (INSTR_TYPE_TRANSPOSE, &c, &b);
