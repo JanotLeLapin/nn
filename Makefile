@@ -3,7 +3,7 @@ CFLAGS := -g -Wall
 
 .PHONY: clean re
 
-nn: main.o
+nn: main.o block.o
 	$(CC) $(CFLAGS) $^ -o $@  -lm
 
 %.o: %.c %.h
