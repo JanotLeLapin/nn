@@ -1,5 +1,17 @@
 #include "block.h"
+#include <math.h>
 #include <stdio.h>
+
+static inline void
+print_spaces (FILE *file, size_t count)
+{
+  size_t i;
+
+  for (i = 0; i < count; i++)
+    {
+      fprintf (file, " ");
+    }
+}
 
 block_t
 block_alloc (unsigned int width, unsigned int height)
@@ -27,22 +39,33 @@ block_free (block_t *block)
     }
 }
 
+static inline int
+digit_count (int v)
+{
+  return v == 0 ? 0 : (int)floorf (log10f (v));
+}
+
 void
 block_print (const block_t *block)
 {
   size_t i, j;
 
+  int row_margin = digit_count (block->dims[1]);
+  int max_cols = block->dims[1] > 100 ? 100 : block->dims[1];
+
   fprintf (stderr, "  ");
-  for (i = 0; i < block->dims[1]; i++)
+  for (i = 0; i < max_cols; i++)
     {
-      fprintf (stderr, "    %ld", i);
+      print_spaces (stderr, 4 - digit_count (i));
+      fprintf (stderr, "%ld", i);
     }
 
   fprintf (stderr, "\n");
   for (i = 0; i < block->dims[0]; i++)
     {
       fprintf (stderr, " %ld ", i);
-      for (j = 0; j < block->dims[1]; j++)
+      print_spaces (stderr, row_margin - digit_count (i));
+      for (j = 0; j < max_cols; j++)
         {
           fprintf (stderr, " %.2f", block->data[i * block->dims[0] + j]);
         }
