@@ -30,6 +30,8 @@
 
         buildPhase = ''
           make
+
+          unity-test
         '';
 
         installPhase = ''
@@ -44,6 +46,8 @@
           gcc
           clang-tools
           gnumake
+
+          unity-test
         ];
       };
     });
