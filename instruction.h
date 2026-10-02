@@ -20,9 +20,12 @@ typedef struct
 } instr_t;
 
 static inline void
-instr_apply (instr_type_t instr, block_t *dst, const block_t *src)
+instr_apply (instr_t instr, block_t *blocks)
 {
-  switch (instr)
+  block_t *dst = &blocks[instr.dst];
+  const block_t *src = &blocks[instr.src];
+
+  switch (instr.t)
     {
     case INSTR_TYPE_TRANSPOSE:
       instr_transpose (dst, src);
