@@ -3,6 +3,7 @@
 
 #include "block.h"
 
+#include "instr/gemm.h"
 #include "instr/transpose.h"
 
 typedef enum
@@ -27,7 +28,7 @@ instr_apply (instr_type_t instr, block_t *dst, const block_t *src)
       instr_transpose (dst, src);
       break;
     case INSTR_TYPE_GEMM:
-      // TODO: can't call gemm quite yet
+      instr_gemm (dst, src);
       break;
     }
 }

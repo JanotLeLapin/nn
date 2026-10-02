@@ -1,9 +1,10 @@
 #include "../block.h"
 
 static inline void
-instr_gemm (block_t *dst, const block_t *a, const block_t *b)
+instr_gemm (block_t *dst, const block_t *src)
 {
-  size_t L = a->dims[0], M = a->dims[1], N = b->dims[1], i, j, k;
+  const block_t *a = &src[0], *b = &src[1];
+  size_t L = src->dims[0], M = a->dims[1], N = b->dims[1], i, j, k;
   float v;
 
   for (i = 0; i < L; i++)
