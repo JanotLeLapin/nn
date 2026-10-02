@@ -13,6 +13,8 @@ nn-test: test/runner.o test/instruction.o block.o instruction.o
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
+instruction.o: instruction.c instruction.h instr/transpose.h
+
 test: nn-test
 	./nn-test
 
