@@ -8,6 +8,7 @@
 typedef enum
 {
   INSTR_TYPE_TRANSPOSE,
+  INSTR_TYPE_GEMM,
 } instr_type_t;
 
 typedef struct
@@ -24,6 +25,9 @@ instr_apply (instr_type_t instr, block_t *dst, const block_t *src)
     {
     case INSTR_TYPE_TRANSPOSE:
       instr_transpose (dst, src);
+      break;
+    case INSTR_TYPE_GEMM:
+      // TODO: can't call gemm quite yet
       break;
     }
 }
