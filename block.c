@@ -53,12 +53,13 @@ block_print (const block_t *block)
 
   int row_margin = digit_count (block->dims[1]);
   int max_cols = block->dims[1] > 100 ? 100 : block->dims[1];
+  float v;
 
   fprintf (stderr, "  ");
   for (i = 0; i < max_cols; i++)
     {
       print_spaces (stderr, 4 - digit_count (i));
-      fprintf (stderr, "%ld", i);
+      fprintf (stderr, " %ld", i);
     }
 
   fprintf (stderr, "\n");
@@ -68,7 +69,12 @@ block_print (const block_t *block)
       print_spaces (stderr, row_margin - digit_count (i));
       for (j = 0; j < max_cols; j++)
         {
-          fprintf (stderr, " %.2f", block->data[i * block->dims[1] + j]);
+          v = block->data[i * block->dims[1] + j];
+          if (v > 0.0)
+            {
+              fprintf (stderr, " ");
+            }
+          fprintf (stderr, " %.2f", v);
         }
 
       fprintf (stderr, "\n");
