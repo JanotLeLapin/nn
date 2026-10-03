@@ -81,7 +81,10 @@ nn_layer_dense (network_t *net, int input_dim, int output_dim, const float *w,
     {
       return -1;
     }
-  memcpy (wb->data, w, input_dim * output_dim * sizeof (float));
+  if (0 != w)
+    {
+      memcpy (wb->data, w, input_dim * output_dim * sizeof (float));
+    }
 
   *bb = block_alloc (1, output_dim);
   if (0 == bb->data)
@@ -89,7 +92,10 @@ nn_layer_dense (network_t *net, int input_dim, int output_dim, const float *w,
       block_free (wb);
       return -1;
     }
-  memcpy (bb->data, b, output_dim * sizeof (float));
+  if (0 != b)
+    {
+      memcpy (bb->data, b, output_dim * sizeof (float));
+    }
 
   *rb = block_alloc (1, output_dim);
   if (0 == rb->data)
