@@ -11,11 +11,11 @@ main ()
   nn_network_t net;
   size_t i;
 
-  nn_network_alloc (&net, 8, 8);
+  nn_network_alloc (&net, 8, 32);
 
   nn_layer_input (&net, 16);
-  nn_layer_dense (&net, 16, 12, 0, 0);
-  nn_layer_dense (&net, 12, 12, 0, 0);
+  nn_layer_dense (&net, 16, 12, 0, 0, ACT_TYPE_RELU);
+  nn_layer_dense (&net, 12, 12, 0, 0, ACT_TYPE_NONE);
 
   for (i = 0; i < 16; i++)
     {

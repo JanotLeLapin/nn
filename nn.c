@@ -65,7 +65,7 @@ nn_layer_input (nn_network_t *net, int input_dim)
 
 int
 nn_layer_dense (nn_network_t *net, int input_dim, int output_dim,
-                const float *w, const float *b)
+                const float *w, const float *b, act_type_t activation)
 {
   instr_t *instr = &net->instrs[net->instr_head];
   int sp = net->stack_head;
