@@ -1,5 +1,6 @@
 #include "block.h"
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 
 static inline void
@@ -71,5 +72,28 @@ block_print (const block_t *block)
         }
 
       fprintf (stderr, "\n");
+    }
+}
+
+static inline uint32_t
+xorshift32 (uint32_t *state)
+{
+  uint32_t x = *state;
+  x ^= x << 13;
+  x ^= x >> 17;
+  x ^= x << 5;
+  return *state = x;
+}
+
+void
+block_randomize (block_t *block, int seed)
+{
+  size_t i;
+  uint32_t state = seed;
+
+  for (i = 0; i < block->dims[0] * block->dims[1]; i++)
+    {
+      block->data[i]
+          = (float)xorshift32 (&state) / ((float)UINT32_MAX / 2.0) - 1.0;
     }
 }
