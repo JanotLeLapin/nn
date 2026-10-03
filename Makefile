@@ -4,10 +4,10 @@ LDFLAGS := -lm
 
 .PHONY: test clean re
 
-nn: main.o block.o instruction.o
+nn: main.o block.o instruction.o nn.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-nn-test: test/runner.o test/instruction.o block.o instruction.o
+nn-test: test/runner.o test/instruction.o block.o instruction.o nn.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) -lunity
 
 %.o: %.c %.h
