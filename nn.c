@@ -67,14 +67,10 @@ int
 nn_layer_dense (nn_network_t *net, int input_dim, int output_dim,
                 const float *w, const float *b, act_type_t activation)
 {
-  instr_t *instr = &net->instrs[net->instr_head];
   int sp = net->stack_head;
   block_t *wb = &net->stack[sp + 1], *bb = &net->stack[sp + 2],
-          *rb = &net->stack[sp + 3];
-
-  instr->t = INSTR_TYPE_GEMM;
-  instr->dst = sp + 3;
-  instr->src = sp;
+          *rb = &net->stack[sp + 3], *fb = &net->stack[sp + 4];
+  instr_t *instr = &net->instrs[net->instr_head];
 
   *wb = block_alloc (input_dim, output_dim);
   if (0 == wb->data)
@@ -106,8 +102,42 @@ nn_layer_dense (nn_network_t *net, int input_dim, int output_dim,
     }
   memset (rb->data, 0, output_dim * sizeof (float));
 
-  net->instr_head += 1;
-  net->stack_head += 3;
+  if (ACT_TYPE_NONE != activation)
+    {
+      *fb = block_alloc (1, output_dim);
+      if (0 == fb->data)
+        {
+          block_free (wb);
+          block_free (bb);
+          block_free (rb);
+          return -1;
+        }
+      memset (fb->data, 0, output_dim * sizeof (float));
+
+      net->stack_head += 4;
+    }
+  else
+    {
+      net->stack_head += 3;
+    }
+
+  instr[0] = (instr_t){ .t = INSTR_TYPE_GEMM, .dst = sp + 3, .src = sp };
+
+  switch (activation)
+    {
+    case ACT_TYPE_NONE:
+      net->instr_head += 1;
+      break;
+#define X(variant)                                                            \
+  case ACT_TYPE_##variant:                                                    \
+    instr[1] = (instr_t){ .t = INSTR_TYPE_##variant,                          \
+                          .dst = sp + 4,                                      \
+                          .src = sp + 3 };                                    \
+    net->instr_head += 2;                                                     \
+    break;
+      ACT_TYPE (X)
+#undef X
+    }
 
   return 0;
 }

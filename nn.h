@@ -4,9 +4,7 @@
 #include "block.h"
 #include "instruction.h"
 
-#define ACT_TYPE(X)                                                           \
-  X (NONE)                                                                    \
-  X (RELU)
+#define ACT_TYPE(X) X (RELU)
 
 typedef struct
 {
@@ -18,6 +16,7 @@ typedef struct
 
 typedef enum
 {
+  ACT_TYPE_NONE,
 #define X(variant) ACT_TYPE_##variant,
   ACT_TYPE (X)
 #undef X
