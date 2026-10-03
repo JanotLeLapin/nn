@@ -44,5 +44,6 @@ instr_apply (instr_t instr, block_t *blocks)
 }
 
 void instr_eval_seq (size_t count, const instr_t *instrs, block_t *blocks);
+void instr_summary (size_t count, const instr_t *instrs);
 
 #endif
