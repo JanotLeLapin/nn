@@ -8,7 +8,7 @@
 int
 main ()
 {
-  network_t net;
+  nn_network_t net;
   size_t i;
 
   nn_network_alloc (&net, 8, 8);

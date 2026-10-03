@@ -4,7 +4,7 @@
 #include <string.h>
 
 int
-nn_network_alloc (network_t *net, int instr_count, int stack_size)
+nn_network_alloc (nn_network_t *net, int instr_count, int stack_size)
 {
   net->instrs = malloc (instr_count * sizeof (instr_t));
   if (0 == net->instrs)
@@ -25,7 +25,7 @@ nn_network_alloc (network_t *net, int instr_count, int stack_size)
 }
 
 void
-nn_network_free (network_t *net)
+nn_network_free (nn_network_t *net)
 {
   size_t i;
 
@@ -44,7 +44,7 @@ nn_network_free (network_t *net)
 }
 
 int
-nn_layer_input (network_t *net, int input_dim)
+nn_layer_input (nn_network_t *net, int input_dim)
 {
   block_t *b = net->stack;
 
@@ -64,8 +64,8 @@ nn_layer_input (network_t *net, int input_dim)
 }
 
 int
-nn_layer_dense (network_t *net, int input_dim, int output_dim, const float *w,
-                const float *b)
+nn_layer_dense (nn_network_t *net, int input_dim, int output_dim,
+                const float *w, const float *b)
 {
   instr_t *instr = &net->instrs[net->instr_head];
   int sp = net->stack_head;
