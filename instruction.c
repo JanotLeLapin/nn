@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 void
-instr_eval_seq (size_t count, const instr_t *instrs, block_t *blocks)
+instr_forward_seq (size_t count, const instr_t *instrs, block_t *blocks)
 {
   size_t i;
   instr_t instr;
@@ -10,7 +10,7 @@ instr_eval_seq (size_t count, const instr_t *instrs, block_t *blocks)
   for (i = 0; i < count; i++)
     {
       instr = instrs[i];
-      instr_apply (instr, blocks);
+      instr_forward (instr, blocks);
     }
 }
 

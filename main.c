@@ -27,7 +27,7 @@ main ()
   block_randomize (&net.stack[4], 412);
   block_randomize (&net.stack[5], 77);
 
-  instr_eval_seq (net.instr_head, net.instrs, net.stack);
+  instr_forward_seq (net.instr_head, net.instrs, net.stack);
 
   fprintf (stderr, "res:\n");
   block_print (&net.stack[net.stack_head]);

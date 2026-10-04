@@ -27,7 +27,7 @@ typedef struct
 } instr_t;
 
 static inline void
-instr_apply (instr_t instr, block_t *blocks)
+instr_forward (instr_t instr, block_t *blocks)
 {
   block_t *dst = &blocks[instr.dst];
   const block_t *src = &blocks[instr.src];
@@ -43,7 +43,7 @@ instr_apply (instr_t instr, block_t *blocks)
     }
 }
 
-void instr_eval_seq (size_t count, const instr_t *instrs, block_t *blocks);
+void instr_forward_seq (size_t count, const instr_t *instrs, block_t *blocks);
 void instr_summary (size_t count, const instr_t *instrs);
 
 #endif
