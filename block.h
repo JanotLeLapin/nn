@@ -15,6 +15,9 @@ void block_free (block_t *block);
 void block_print (const block_t *block);
 void block_randomize (block_t *block, int seed);
 
+int block_load (block_t *block, const char *path);
+int block_save (const block_t *block, const char *path);
+
 static inline size_t
 block_elem_count (const block_t *b)
 {

@@ -103,3 +103,47 @@ block_randomize (block_t *block, int seed)
           = (float)xorshift32 (&state) / ((float)UINT32_MAX / 2.0) - 1.0;
     }
 }
+
+int
+block_load (block_t *block, const char *path)
+{
+  FILE *f;
+  size_t n = block->dims[0] * block->dims[1];
+
+  f = fopen (path, "rb");
+  if (0 == f)
+    {
+      return -1;
+    }
+
+  if (0 == fread (block->data, sizeof (float), n, f))
+    {
+      fclose (f);
+      return -1;
+    };
+
+  fclose (f);
+  return 0;
+}
+
+int
+block_save (const block_t *block, const char *path)
+{
+  FILE *f;
+  size_t n = block->dims[0] * block->dims[1];
+
+  f = fopen (path, "wb");
+  if (0 == f)
+    {
+      return -1;
+    }
+
+  if (0 == fwrite (block->data, sizeof (float), n, f))
+    {
+      fclose (f);
+      return -1;
+    }
+
+  fclose (f);
+  return 0;
+}
