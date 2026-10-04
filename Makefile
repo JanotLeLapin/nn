@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -g -Wall -O3
+CFLAGS := -fuse-ld=mold -g -Wall -O3
 LDFLAGS := -lm
 
 .PHONY: test clean re

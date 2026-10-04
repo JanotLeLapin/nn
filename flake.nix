@@ -26,6 +26,7 @@
 
         nativeBuildInputs = with pkgs; [
           gcc
+          mold
         ];
 
         buildInputs = with pkgs; [
@@ -47,6 +48,7 @@
         packages = with pkgs; [
           gcc
           gnumake
+          mold
 
           clang-tools
           valgrind
