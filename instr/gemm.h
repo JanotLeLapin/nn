@@ -1,7 +1,7 @@
 #include "../block.h"
 
 static inline void
-instr_gemm (block_t *dst, const block_t *src)
+instr_gemm (block_t *restrict dst, const block_t *restrict src)
 {
   const block_t *a = &src[0], *b = &src[1], *c = &src[2];
   size_t L = a->dims[0], M = a->dims[1], N = b->dims[1], i, j, k;

@@ -9,7 +9,7 @@ relu (float v)
 }
 
 static inline void
-instr_relu (block_t *dst, const block_t *src)
+instr_relu (block_t *restrict dst, const block_t *restrict src)
 {
   ELEMENT_WISE (dst, src, relu);
 }

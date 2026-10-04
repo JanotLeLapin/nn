@@ -6,7 +6,7 @@
  * (A^T)[i,j] = A[j,i]
  */
 static inline void
-instr_transpose (block_t *dst, const block_t *src)
+instr_transpose (block_t *restrict dst, const block_t *restrict src)
 {
   size_t M = src->dims[0], N = src->dims[1], i, j;
   float v;
