@@ -4,7 +4,7 @@ LDFLAGS := -lm
 
 .PHONY: test clean re
 
-nn: main.o vec.o block.o instruction.o nn.o
+nn: main.o vec.o image.o block.o instruction.o nn.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 nn-test: test/runner.o test/vec.o test/instruction.o vec.o block.o instruction.o nn.o

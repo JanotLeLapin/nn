@@ -30,6 +30,7 @@
         ];
 
         buildInputs = with pkgs; [
+          stb
           unity-test
         ];
 
@@ -54,6 +55,7 @@
           valgrind
           gdb
 
+          stb
           unity-test
 
           python3
