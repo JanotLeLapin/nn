@@ -40,3 +40,24 @@ nn_layer_dense (&net, 64, 10, 0, 0, ACT_TYPE_SOFTMAX); // 640 muls
 
 It consistently took between `0.125` and `0.185` milliseconds, that's roughly
 `727,893,333` floating-point ops per second (~**728 MFLOPS**/s)
+
+### OpenMP experiment
+
+I tried to make the GEMM instruction run in parallel with OpenMP. The
+performance of the inference loop became highly inconsistent, with
+execution times ranging from anywhere between 4 and 17 milliseconds. That's
+roughly `27,296,000` to `~6,422,588` floating-point ops per second, or in
+average ~**10,4 MFLOP**/s.
+
+I think `109,184` FLOPs isn't nearly enough to make thread synchronization
+overhead worth parallelizing this GEMM instruction, but I thought maybe
+OpenMP could make the first layer computation run more efficiently, as it
+performs by itself `100,352` FLOPs, so I compared the two binaries:
+
+|              | max time   | min time   |
+|--------------|------------|------------|
+| `layer1-omp` | `8.0` ms   | `2.0` ms   |
+| `layer1`     | `0.116` ms | `0.163` ms |
+
+The parallelized layer still takes several orders of magnitude more time than
+the serialied one.
