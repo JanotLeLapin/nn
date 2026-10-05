@@ -14,5 +14,12 @@ test_vec_append ()
   TEST_ASSERT_EQUAL (1.0, *(float *)vec_get (&v, 0));
   TEST_ASSERT_EQUAL (2.0, *(float *)vec_get (&v, 1));
 
+  TEST_ASSERT_NOT_EQUAL (-1, vec_append (&v, &src[2], 2));
+
+  TEST_ASSERT_EQUAL (4, v.len);
+  TEST_ASSERT_EQUAL (1.0, *(float *)vec_get (&v, 0));
+  TEST_ASSERT_EQUAL (2.0, *(float *)vec_get (&v, 1));
+  TEST_ASSERT_EQUAL (3.0, *(float *)vec_get (&v, 2));
+
   vec_free (&v);
 }
