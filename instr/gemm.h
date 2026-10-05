@@ -1,5 +1,6 @@
 #include "../block.h"
 
+#ifndef INSTR_IKJ
 static inline void
 instr_gemm (float *buf, block_t *restrict dst, const block_t *restrict src)
 {
@@ -23,3 +24,42 @@ instr_gemm (float *buf, block_t *restrict dst, const block_t *restrict src)
         }
     }
 }
+
+#else
+
+static inline void
+instr_gemm (float *buf, block_t *restrict dst, const block_t *restrict src)
+{
+  const block_t *a = &src[0], *b = &src[1], *c = &src[2];
+  size_t L = a->dims[0], M = a->dims[1], N = b->dims[1], i, j, k;
+  float *restrict A = &buf[a->offset], *restrict B = &buf[b->offset],
+                  *restrict C = &buf[c->offset],
+                  *restrict D = &buf[dst->offset], *d, aik;
+  const float *arow, *brow, *crow;
+
+#ifdef INSTR_OMP
+#pragma omp parallel for
+#endif
+  for (i = 0; i < L; i++)
+    {
+      d = D + i * N;
+      crow = C + i * N;
+      arow = A + i * M;
+      for (j = 0; j < N; j++)
+        {
+          d[j] = crow[j];
+        }
+
+      for (k = 0; k < M; k++)
+        {
+          aik = arow[k];
+          brow = B + k * N;
+
+          for (j = 0; j < N; j++)
+            {
+              d[j] += aik * brow[j];
+            }
+        }
+    }
+}
+#endif

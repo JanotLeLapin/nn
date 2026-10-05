@@ -12,6 +12,9 @@ nn: main.o vec.o image.o block.o nn.o
 nn-omp: main-omp.o vec.o image.o block.o nn.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
+nn-ikj: main-ikj.o vec.o image.o block.o nn.o
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
 nn-test: test/runner.o test/vec.o test/instruction.o vec.o block.o instruction.o nn.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) -lunity
 
@@ -22,6 +25,9 @@ main.o: main.c block.h image.h nn.h vec.h $(INSTR_HEADERS)
 
 main-omp.o: main.c block.h image.h nn.h vec.h $(INSTR_HEADERS)
 	$(CC) $(CFLAGS) -DINSTR_OMP -c $< -o $@
+
+main-ikj.o: main.c block.h image.h nn.h vec.h $(INSTR_HEADERS)
+	$(CC) $(CFLAGS) -DINSTR_IKJ -c $< -o $@
 
 instruction.o: instruction.c $(INSTR_HEADERS)
 
