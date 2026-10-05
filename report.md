@@ -61,3 +61,14 @@ performs by itself `100,352` FLOPs, so I compared the two binaries:
 
 The parallelized layer still takes several orders of magnitude more time than
 the serialied one.
+
+### GEMM loop ordering
+
+I rewrote the GEMM instruction with another loop ordering (`ikj` rather than
+`ijk`) and immediately observed consistently better performance, with
+execution times ranging from `0.036` and `0.087` milliseconds. That's
+~**1,775 MFLOP/s** on average.
+
+The two implementations are mathematically identical, but with this new
+ordering, matrix elements are accessed sequentially in memory, which improves
+cache locality.
