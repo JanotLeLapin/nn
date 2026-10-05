@@ -1,8 +1,7 @@
 #ifndef _NN_H
 #define _NN_H
 
-#include "block.h"
-#include "instruction.h"
+#include "vec.h"
 
 #define ACT_TYPE(X) X (RELU)
 
@@ -15,10 +14,8 @@ typedef struct
 typedef struct
 {
   buffer_t buffer;
-  instr_t *instrs;
-  block_t *stack;
-  int instr_head;
-  int stack_head;
+  vec_t instrs;
+  vec_t blocks;
 } nn_network_t;
 
 typedef enum

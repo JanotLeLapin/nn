@@ -1,6 +1,7 @@
 #include "nn.h"
 #include "block.h"
 #include "instruction.h"
+#include "vec.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -57,22 +58,18 @@ nn_network_alloc (nn_network_t *net, int instr_count, int stack_size)
       return -1;
     }
 
-  net->instrs = malloc (instr_count * sizeof (instr_t));
-  if (0 == net->instrs)
+  if (-1 == vec_alloc (&net->instrs, sizeof (instr_t), instr_count))
     {
       buffer_free (&net->buffer);
-      return -1;
-    }
-  net->stack = malloc (stack_size * sizeof (block_t));
-  if (0 == net->stack)
-    {
-      buffer_free (&net->buffer);
-      free (net->instrs);
       return -1;
     }
 
-  net->instr_head = 0;
-  net->stack_head = 0;
+  if (-1 == vec_alloc (&net->blocks, sizeof (block_t), stack_size))
+    {
+      buffer_free (&net->buffer);
+      vec_free (&net->instrs);
+      return -1;
+    }
 
   return 0;
 }
@@ -81,21 +78,17 @@ void
 nn_network_free (nn_network_t *net)
 {
   buffer_free (&net->buffer);
-  free (net->instrs);
-  free (net->stack);
-  net->instrs = 0;
-  net->stack = 0;
-  net->instr_head = 0;
-  net->stack_head = 0;
+  vec_free (&net->instrs);
+  vec_free (&net->blocks);
 }
 
 int
 nn_layer_input (nn_network_t *net, int input_dim)
 {
   float *buffer_head;
-  block_t *b = net->stack;
+  block_t b;
 
-  if (0 < net->stack_head)
+  if (0 < net->instrs.len)
     {
       return -1;
     }
@@ -107,8 +100,13 @@ nn_layer_input (nn_network_t *net, int input_dim)
   buffer_head = &net->buffer.data[net->buffer.length];
   net->buffer.length += input_dim;
 
-  *b = (block_t){ .data = buffer_head, .dims = { 1, input_dim } };
-  memset (b->data, 0, input_dim * sizeof (float));
+  b = (block_t){ .data = buffer_head, .dims = { 1, input_dim } };
+  memset (b.data, 0, input_dim * sizeof (float));
+
+  if (-1 == vec_append (&net->blocks, &b, 1))
+    {
+      return -1;
+    }
 
   return 0;
 }
@@ -118,10 +116,9 @@ nn_layer_dense (nn_network_t *net, int input_dim, int output_dim,
                 const float *w, const float *b, act_type_t activation)
 {
   float *buffer_head;
-  int sp = net->stack_head;
-  block_t *wb = &net->stack[sp + 1], *bb = &net->stack[sp + 2],
-          *rb = &net->stack[sp + 3], *fb = &net->stack[sp + 4];
-  instr_t *instr = &net->instrs[net->instr_head];
+  block_t bs[4];
+  instr_t instrs[2];
+  size_t instr_count, block_count, stack_head = net->blocks.len - 1;
 
   if (-1
       == buffer_resize (&net->buffer, net->buffer.capacity
@@ -133,54 +130,66 @@ nn_layer_dense (nn_network_t *net, int input_dim, int output_dim,
   buffer_head = &net->buffer.data[net->buffer.length];
   net->buffer.length += input_dim * output_dim + 3 * output_dim;
 
-  *wb = (block_t){ .data = &buffer_head[0],
-                   .dims = { input_dim, output_dim } };
-  *bb = (block_t){ .data = &buffer_head[input_dim * output_dim],
-                   .dims = { 1, output_dim } };
-  *rb = (block_t){ .data = &buffer_head[input_dim * output_dim + output_dim],
-                   .dims = { 1, output_dim } };
-  *fb = (block_t){ .data
-                   = &buffer_head[input_dim * output_dim + 2 * output_dim],
-                   .dims = { 1, output_dim } };
+  bs[0] = (block_t){ .data = &buffer_head[0],
+                     .dims = { input_dim, output_dim } };
+  bs[1] = (block_t){ .data = &buffer_head[input_dim * output_dim],
+                     .dims = { 1, output_dim } };
+  bs[2] = (block_t){ .data = &buffer_head[input_dim * output_dim + output_dim],
+                     .dims = { 1, output_dim } };
+  bs[3] = (block_t){ .data
+                     = &buffer_head[input_dim * output_dim + 2 * output_dim],
+                     .dims = { 1, output_dim } };
 
   if (0 != w)
     {
-      memcpy (wb->data, w, input_dim * output_dim * sizeof (float));
+      memcpy (bs[0].data, w, input_dim * output_dim * sizeof (float));
     }
   if (0 != b)
     {
-      memcpy (bb->data, b, output_dim * sizeof (float));
+      memcpy (bs[1].data, b, output_dim * sizeof (float));
     }
 
-  memset (rb->data, 0, output_dim * sizeof (float));
+  memset (bs[2].data, 0, output_dim * sizeof (float));
 
   if (ACT_TYPE_NONE != activation)
     {
-      memset (fb->data, 0, output_dim * sizeof (float));
-      net->stack_head += 4;
+      memset (bs[3].data, 0, output_dim * sizeof (float));
+      block_count = 4;
     }
   else
     {
-      net->stack_head += 3;
+      block_count = 3;
     }
 
-  instr[0] = (instr_t){ .t = INSTR_TYPE_GEMM, .dst = sp + 3, .src = sp };
+  instrs[0] = (instr_t){ .t = INSTR_TYPE_GEMM,
+                         .dst = stack_head + 3,
+                         .src = stack_head };
 
   switch (activation)
     {
-    case ACT_TYPE_NONE:
-      net->instr_head += 1;
-      break;
 #define X(variant)                                                            \
   case ACT_TYPE_##variant:                                                    \
-    instr[1] = (instr_t){ .t = INSTR_TYPE_##variant,                          \
-                          .dst = sp + 4,                                      \
-                          .src = sp + 3 };                                    \
-    net->instr_head += 2;                                                     \
+    instrs[1] = (instr_t){ .t = INSTR_TYPE_##variant,                         \
+                           .dst = stack_head + 4,                             \
+                           .src = stack_head + 3 };                           \
+    instr_count = 2;                                                          \
     break;
       ACT_TYPE (X)
 #undef X
+    default:
+      instr_count = 1;
+      break;
     }
+
+  if (-1 == vec_append (&net->blocks, bs, block_count))
+    {
+      return -1;
+    }
+
+  if (-1 == vec_append (&net->instrs, instrs, instr_count))
+    {
+      return -1;
+    };
 
   return 0;
 }
