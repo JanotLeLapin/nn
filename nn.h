@@ -3,7 +3,9 @@
 
 #include "vec.h"
 
-#define ACT_TYPE(X) X (RELU)
+#define ACT_TYPE(X)                                                           \
+  X (RELU)                                                                    \
+  X (SOFTMAX)
 
 typedef struct
 {

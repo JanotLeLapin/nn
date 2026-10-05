@@ -35,6 +35,9 @@ instr_summary (size_t count, const instr_t *instrs)
         case INSTR_TYPE_RELU:
           name = "relu";
           break;
+        case INSTR_TYPE_SOFTMAX:
+          name = "softmax";
+          break;
         default:
           continue;
         }

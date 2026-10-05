@@ -5,12 +5,14 @@
 
 #include "instr/gemm.h"
 #include "instr/relu.h"
+#include "instr/softmax.h"
 #include "instr/transpose.h"
 
 #define INSTR_TYPE(X)                                                         \
   X (TRANSPOSE, transpose)                                                    \
   X (GEMM, gemm)                                                              \
-  X (RELU, relu)
+  X (RELU, relu)                                                              \
+  X (SOFTMAX, softmax)
 
 typedef enum
 {

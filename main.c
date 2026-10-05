@@ -17,7 +17,7 @@ main ()
 
   nn_layer_input (&net, 16);
   nn_layer_dense (&net, 16, 12, 0, 0, ACT_TYPE_RELU);
-  nn_layer_dense (&net, 12, 12, 0, 0, ACT_TYPE_NONE);
+  nn_layer_dense (&net, 12, 12, 0, 0, ACT_TYPE_SOFTMAX);
 
   b = vec_get (&net.blocks, 0);
   for (i = 0; i < 16; i++)
