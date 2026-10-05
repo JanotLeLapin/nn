@@ -52,7 +52,7 @@ main (int argc, char **argv)
 
   memcpy (net.buffer.data, img, 784 * sizeof (float));
 
-  instr_summary (net.instrs.len, net.instrs.data);
+  // instr_summary (net.instrs.len, net.instrs.data);
   instr_forward_seq (net.buffer.data, net.instrs.len, net.instrs.data,
                      net.blocks.data);
 
