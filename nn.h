@@ -8,6 +8,13 @@
 
 typedef struct
 {
+  float *data;
+  size_t length, capacity;
+} buffer_t;
+
+typedef struct
+{
+  buffer_t buffer;
   instr_t *instrs;
   block_t *stack;
   int instr_head;
@@ -21,6 +28,10 @@ typedef enum
   ACT_TYPE (X)
 #undef X
 } act_type_t;
+
+int buffer_alloc (buffer_t *b, size_t capacity);
+int buffer_resize (buffer_t *b, size_t newcapacity);
+void buffer_free (buffer_t *b);
 
 int nn_network_alloc (nn_network_t *net, int instr_count, int stack_size);
 void nn_network_free (nn_network_t *net);
