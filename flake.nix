@@ -58,11 +58,14 @@
 
           python3
           python3Packages.pip
+          python3Packages.torch
+          python3Packages.torchvision
           python3Packages.numpy
           python3Packages.scipy
           python3Packages.matplotlib
           python3Packages.pandas
           python3Packages.seaborn
+
           python3Packages.python-lsp-server
         ];
       };

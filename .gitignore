@@ -1,3 +1,5 @@
 nn
 *.o
 *.bin
+
+mnist/
