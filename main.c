@@ -11,9 +11,9 @@
 int
 main (int argc, char **argv)
 {
-  float *img;
+  float *img, max_value = 0.0;
   nn_network_t net;
-  size_t i;
+  size_t i, max_idx;
   block_t *b;
 
   if (2 > argc)
@@ -56,8 +56,17 @@ main (int argc, char **argv)
   instr_forward_seq (net.buffer.data, net.instrs.len, net.instrs.data,
                      net.blocks.data);
 
-  fprintf (stderr, "res:\n");
-  block_print (net.buffer.data, vec_get (&net.blocks, net.blocks.len - 1));
+  b = vec_get (&net.blocks, net.blocks.len - 1);
+  for (i = 0; i < 10; i++)
+    {
+      if (net.buffer.data[b->offset + i] > max_value)
+        {
+          max_idx = i;
+          max_value = net.buffer.data[b->offset + i];
+        }
+    }
+
+  fprintf (stdout, "prediction: %ld\n", max_idx);
 
   nn_network_free (&net);
   free (img);
