@@ -80,8 +80,8 @@ pathlib.Path("./model").mkdir(exist_ok=True)
 
 layers = [ model.fc1, model.fc2, model.fc3 ]
 for i, layer in enumerate(layers):
-  weights = layer.weight.detach().cpu().numpy().astype(np.float32)
+  weights = layer.weight.detach().cpu().numpy().astype(np.float32).T
   biases = layer.bias.detach().cpu().numpy().astype(np.float32)
 
-  weights.tofile(f"model/layer{i + 1}_weights.bin")
+  np.ascontiguousarray(weights).tofile(f"model/layer{i + 1}_weights.bin")
   biases.tofile(f"model/layer{i + 1}_biases.bin")
