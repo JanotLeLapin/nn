@@ -20,3 +20,23 @@ kernel. Same idea applies to rewriting `GEMM` in OpenCL.
 4. I'd also like to experiment with the `-ffast-math` compiler flag.
 
 That's about all I can think of for now
+
+## Baseline
+
+- compiler: `gcc`, version: `15.3.0`
+- flags: `-fuse-ld=mold -g -Wall -O3`
+- CPU: `AMD Ryzen 7 5800X 8-Core Processor`
+- OS: `NixOS 26.11`, Linux: `7.2.6`
+
+I've recorded the performance of the inference loop for the following network:
+
+```c
+nn_layer_input (&net, 784);
+nn_layer_dense (&net, 784, 128, 0, 0, ACT_TYPE_RELU); // 100,352 muls
+nn_layer_dense (&net, 128, 64, 0, 0, ACT_TYPE_RELU); // 8.192 muls
+nn_layer_dense (&net, 64, 10, 0, 0, ACT_TYPE_SOFTMAX); // 640 muls
+// TOTAL: 109,184 muls
+```
+
+It consistently took between `0.125` and `0.185` milliseconds, that's roughly
+`727,893,333` floating-point ops per second (~**728 MFLOPS**/s)
