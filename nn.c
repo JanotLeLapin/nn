@@ -85,7 +85,6 @@ nn_network_free (nn_network_t *net)
 int
 nn_layer_input (nn_network_t *net, int input_dim)
 {
-  float *buffer_head;
   block_t b;
 
   if (0 < net->instrs.len)
@@ -97,11 +96,11 @@ nn_layer_input (nn_network_t *net, int input_dim)
     {
       return -1;
     }
-  buffer_head = &net->buffer.data[net->buffer.length];
-  net->buffer.length += input_dim;
 
-  b = (block_t){ .data = buffer_head, .dims = { 1, input_dim } };
-  memset (b.data, 0, input_dim * sizeof (float));
+  b = (block_t){ .offset = net->buffer.length, .dims = { 1, input_dim } };
+  memset (&net->buffer.data[net->buffer.length], 0,
+          input_dim * sizeof (float));
+  net->buffer.length += input_dim;
 
   if (-1 == vec_append (&net->blocks, &b, 1))
     {
@@ -115,7 +114,6 @@ int
 nn_layer_dense (nn_network_t *net, int input_dim, int output_dim,
                 const float *w, const float *b, act_type_t activation)
 {
-  float *buffer_head;
   block_t bs[4];
   instr_t instrs[2];
   size_t instr_count, block_count, stack_head = net->blocks.len - 1;
@@ -127,33 +125,34 @@ nn_layer_dense (nn_network_t *net, int input_dim, int output_dim,
     {
       return -1;
     }
-  buffer_head = &net->buffer.data[net->buffer.length];
-  net->buffer.length += input_dim * output_dim + 3 * output_dim;
 
-  bs[0] = (block_t){ .data = &buffer_head[0],
+  bs[0] = (block_t){ .offset = net->buffer.length,
                      .dims = { input_dim, output_dim } };
-  bs[1] = (block_t){ .data = &buffer_head[input_dim * output_dim],
+  bs[1] = (block_t){ .offset = net->buffer.length + input_dim * output_dim,
                      .dims = { 1, output_dim } };
-  bs[2] = (block_t){ .data = &buffer_head[input_dim * output_dim + output_dim],
+  bs[2] = (block_t){ .offset = net->buffer.length + input_dim * output_dim
+                               + output_dim,
                      .dims = { 1, output_dim } };
-  bs[3] = (block_t){ .data
-                     = &buffer_head[input_dim * output_dim + 2 * output_dim],
+  bs[3] = (block_t){ .offset = net->buffer.length + input_dim * output_dim
+                               + 2 * output_dim,
                      .dims = { 1, output_dim } };
+  net->buffer.length += input_dim * output_dim + 3 * output_dim;
 
   if (0 != w)
     {
-      memcpy (bs[0].data, w, input_dim * output_dim * sizeof (float));
+      memcpy (&net->buffer.data[bs[0].offset], w,
+              input_dim * output_dim * sizeof (float));
     }
   if (0 != b)
     {
-      memcpy (bs[1].data, b, output_dim * sizeof (float));
+      memcpy (&net->buffer.data[bs[1].offset], b, output_dim * sizeof (float));
     }
 
-  memset (bs[2].data, 0, output_dim * sizeof (float));
+  memset (&net->buffer.data[bs[2].offset], 0, output_dim * sizeof (float));
 
   if (ACT_TYPE_NONE != activation)
     {
-      memset (bs[3].data, 0, output_dim * sizeof (float));
+      memset (&net->buffer.data[bs[3].offset], 0, output_dim * sizeof (float));
       block_count = 4;
     }
   else

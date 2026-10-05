@@ -6,7 +6,8 @@
  * (A^T)[i,j] = A[j,i]
  */
 static inline void
-instr_transpose (block_t *restrict dst, const block_t *restrict src)
+instr_transpose (float *buf, block_t *restrict dst,
+                 const block_t *restrict src)
 {
   size_t M = src->dims[0], N = src->dims[1], i, j;
   float v;
@@ -15,8 +16,8 @@ instr_transpose (block_t *restrict dst, const block_t *restrict src)
     {
       for (j = 0; j < N; j++)
         {
-          v = src->data[i * N + j];
-          dst->data[j * M + i] = v;
+          v = buf[src->offset + i * N + j];
+          buf[dst->offset + j * M + i] = v;
         }
     }
 }

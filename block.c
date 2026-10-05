@@ -14,32 +14,6 @@ print_spaces (FILE *file, size_t count)
     }
 }
 
-block_t
-block_alloc (unsigned int width, unsigned int height)
-{
-  float *data = (float *)malloc (width * height * sizeof (float));
-  if (0 == data)
-    {
-      return (block_t){ .data = 0, .dims = { 0, 0 } };
-    }
-
-  return (block_t){ .data = data, .dims = { width, height } };
-}
-
-void
-block_free (block_t *block)
-{
-  size_t i;
-
-  free (block->data);
-  block->data = 0;
-
-  for (i = 0; i < 2; i++)
-    {
-      block->dims[i] = 0;
-    }
-}
-
 static inline int
 digit_count (int v)
 {
@@ -47,7 +21,7 @@ digit_count (int v)
 }
 
 void
-block_print (const block_t *block)
+block_print (const float *buf, const block_t *block)
 {
   size_t i, j;
 
@@ -69,7 +43,7 @@ block_print (const block_t *block)
       print_spaces (stderr, row_margin - digit_count (i));
       for (j = 0; j < max_cols; j++)
         {
-          v = block->data[i * block->dims[1] + j];
+          v = buf[block->offset + i * block->dims[1] + j];
           if (v > 0.0)
             {
               fprintf (stderr, " ");
@@ -92,20 +66,20 @@ xorshift32 (uint32_t *state)
 }
 
 void
-block_randomize (block_t *block, int seed)
+block_randomize (float *buf, const block_t *block, int seed)
 {
   size_t i;
   uint32_t state = seed;
 
   for (i = 0; i < block->dims[0] * block->dims[1]; i++)
     {
-      block->data[i]
+      buf[block->offset + i]
           = (float)xorshift32 (&state) / ((float)UINT32_MAX / 2.0) - 1.0;
     }
 }
 
 int
-block_load (block_t *block, const char *path)
+block_load (float *buf, const block_t *block, const char *path)
 {
   FILE *f;
   size_t n = block->dims[0] * block->dims[1];
@@ -116,7 +90,7 @@ block_load (block_t *block, const char *path)
       return -1;
     }
 
-  if (0 == fread (block->data, sizeof (float), n, f))
+  if (0 == fread (&buf[block->offset], sizeof (float), n, f))
     {
       fclose (f);
       return -1;
@@ -127,7 +101,7 @@ block_load (block_t *block, const char *path)
 }
 
 int
-block_save (const block_t *block, const char *path)
+block_save (const float *buf, const block_t *block, const char *path)
 {
   FILE *f;
   size_t n = block->dims[0] * block->dims[1];
@@ -138,7 +112,7 @@ block_save (const block_t *block, const char *path)
       return -1;
     }
 
-  if (0 == fwrite (block->data, sizeof (float), n, f))
+  if (0 == fwrite (&buf[block->offset], sizeof (float), n, f))
     {
       fclose (f);
       return -1;

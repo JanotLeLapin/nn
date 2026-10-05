@@ -6,17 +6,15 @@
 
 typedef struct
 {
-  float *data;
+  size_t offset;
   unsigned int dims[2];
 } block_t;
 
-block_t block_alloc (unsigned int width, unsigned int height);
-void block_free (block_t *block);
-void block_print (const block_t *block);
-void block_randomize (block_t *block, int seed);
+void block_print (const float *buf, const block_t *block);
+void block_randomize (float *buf, const block_t *block, int seed);
 
-int block_load (block_t *block, const char *path);
-int block_save (const block_t *block, const char *path);
+int block_load (float *buf, const block_t *block, const char *path);
+int block_save (const float *buf, const block_t *block, const char *path);
 
 static inline size_t
 block_elem_count (const block_t *b)

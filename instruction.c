@@ -2,7 +2,8 @@
 #include <stdio.h>
 
 void
-instr_forward_seq (size_t count, const instr_t *instrs, block_t *blocks)
+instr_forward_seq (float *buf, size_t count, const instr_t *instrs,
+                   block_t *blocks)
 {
   size_t i;
   instr_t instr;
@@ -10,7 +11,7 @@ instr_forward_seq (size_t count, const instr_t *instrs, block_t *blocks)
   for (i = 0; i < count; i++)
     {
       instr = instrs[i];
-      instr_forward (instr, blocks);
+      instr_forward (buf, instr, blocks);
     }
 }
 
