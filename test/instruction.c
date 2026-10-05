@@ -19,7 +19,7 @@ test_instr_transpose ()
 
   memcpy (b[0].data, src, 6 * sizeof (float));
 
-  instr_eval_seq (2, instrs, b);
+  instr_forward_seq (2, instrs, b);
 
   TEST_ASSERT_FLOAT_ARRAY_WITHIN (0.0, dst, b[1].data, 6);
   TEST_ASSERT_FLOAT_ARRAY_WITHIN (0.0, src, b[2].data, 6);
@@ -49,7 +49,7 @@ test_instr_gemm ()
   memcpy (b[1].data, bd, 6 * sizeof (float));
   memcpy (b[2].data, cd, 4 * sizeof (float));
 
-  instr_eval_seq (1, instrs, b);
+  instr_forward_seq (1, instrs, b);
 
   TEST_ASSERT_FLOAT_ARRAY_WITHIN (0.0, dd, b[3].data, 4);
 
