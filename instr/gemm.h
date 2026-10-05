@@ -7,6 +7,9 @@ instr_gemm (float *buf, block_t *restrict dst, const block_t *restrict src)
   size_t L = a->dims[0], M = a->dims[1], N = b->dims[1], i, j, k;
   float v;
 
+#ifdef INSTR_OMP
+#pragma omp parallel for
+#endif
   for (i = 0; i < L; i++)
     {
       for (j = 0; j < N; j++)

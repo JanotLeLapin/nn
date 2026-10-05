@@ -1,4 +1,6 @@
 nn
+nn-omp
+
 *.o
 *.bin
 
