@@ -1,12 +1,20 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "block.h"
 #include "image.h"
 #include "instruction.h"
 #include "nn.h"
 #include "vec.h"
+
+static inline uint64_t
+ts_ns (struct timespec ts)
+{
+  return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
+}
 
 int
 main (int argc, char **argv)
@@ -15,6 +23,8 @@ main (int argc, char **argv)
   nn_network_t net;
   size_t i, max_idx;
   block_t *b;
+  struct timespec ts;
+  uint64_t start, end;
 
   if (2 > argc)
     {
@@ -53,8 +63,12 @@ main (int argc, char **argv)
   memcpy (net.buffer.data, img, 784 * sizeof (float));
 
   // instr_summary (net.instrs.len, net.instrs.data);
+  clock_gettime (CLOCK_MONOTONIC, &ts);
+  start = ts_ns (ts);
   instr_forward_seq (net.buffer.data, net.instrs.len, net.instrs.data,
                      net.blocks.data);
+  clock_gettime (CLOCK_MONOTONIC, &ts);
+  end = ts_ns (ts);
 
   b = vec_get (&net.blocks, net.blocks.len - 1);
   for (i = 0; i < 10; i++)
@@ -66,7 +80,8 @@ main (int argc, char **argv)
         }
     }
 
-  fprintf (stdout, "prediction: %ld\n", max_idx);
+  fprintf (stdout, "prediction: %ld (took %.3f ms)\n", max_idx,
+           (double)(end - start) / 1e6);
 
   nn_network_free (&net);
   free (img);
