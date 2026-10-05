@@ -2,12 +2,14 @@ CC := gcc
 CFLAGS := -fuse-ld=mold -fopenmp -g -Wall -O3
 LDFLAGS := -lm
 
+INSTR_HEADERS := instruction.h instr/softmax.h instr/util.h instr/gemm.h instr/transpose.h instr/relu.h
+
 .PHONY: test clean re
 
-nn: main.o vec.o image.o block.o instruction.o nn.o
+nn: main.o vec.o image.o block.o nn.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-nn-omp: main.o vec.o image.o block.o instruction-omp.o nn.o
+nn-omp: main-omp.o vec.o image.o block.o nn.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 nn-test: test/runner.o test/vec.o test/instruction.o vec.o block.o instruction.o nn.o
@@ -16,10 +18,12 @@ nn-test: test/runner.o test/vec.o test/instruction.o vec.o block.o instruction.o
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-instruction-omp.o: instruction.c instruction.h instr/gemm.h instr/transpose.h
+main.o: main.c block.h image.h nn.h vec.h $(INSTR_HEADERS)
+
+main-omp.o: main.c block.h image.h nn.h vec.h $(INSTR_HEADERS)
 	$(CC) $(CFLAGS) -DINSTR_OMP -c $< -o $@
 
-instruction.o: instruction.c instruction.h instr/gemm.h instr/transpose.h
+instruction.o: instruction.c $(INSTR_HEADERS)
 
 test: nn-test
 	./nn-test
