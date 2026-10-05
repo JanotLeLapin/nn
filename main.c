@@ -23,8 +23,9 @@ main (int argc, char **argv)
   nn_network_t net;
   size_t i, max_idx;
   block_t *b;
+  instr_t instr;
   struct timespec ts;
-  uint64_t start, end;
+  uint64_t loop_start, loop_end, layer_start, layer_end;
 
   if (2 > argc)
     {
@@ -64,11 +65,21 @@ main (int argc, char **argv)
 
   // instr_summary (net.instrs.len, net.instrs.data);
   clock_gettime (CLOCK_MONOTONIC, &ts);
-  start = ts_ns (ts);
-  instr_forward_seq (net.buffer.data, net.instrs.len, net.instrs.data,
-                     net.blocks.data);
+  loop_start = ts_ns (ts);
+  for (i = 0; i < net.instrs.len; i++)
+    {
+      clock_gettime (CLOCK_MONOTONIC, &ts);
+      layer_start = ts_ns (ts);
+      instr = *(instr_t *)vec_get (&net.instrs, i);
+      instr_forward (net.buffer.data, instr, net.blocks.data);
+      clock_gettime (CLOCK_MONOTONIC, &ts);
+      layer_end = ts_ns (ts);
+
+      fprintf (stderr, "layer %ld took %.3fms\n", i + 1,
+               (double)(layer_end - layer_start) / 1e6);
+    }
   clock_gettime (CLOCK_MONOTONIC, &ts);
-  end = ts_ns (ts);
+  loop_end = ts_ns (ts);
 
   b = vec_get (&net.blocks, net.blocks.len - 1);
   for (i = 0; i < 10; i++)
@@ -80,8 +91,8 @@ main (int argc, char **argv)
         }
     }
 
-  fprintf (stdout, "prediction: %ld (took %.3f ms)\n", max_idx,
-           (double)(end - start) / 1e6);
+  fprintf (stdout, "prediction: %ld (took %.3fms)\n", max_idx,
+           (double)(loop_end - loop_start) / 1e6);
 
   nn_network_free (&net);
   free (img);
