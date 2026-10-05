@@ -7,6 +7,7 @@ import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 import numpy as np
+import pathlib
 
 transform = transforms.Compose([
   transforms.ToTensor(),
@@ -75,3 +76,12 @@ for epoch in range(num_epochs):
       running_loss = 0.0
 
 torch.save(model.state_dict(), 'digit_model.pth')
+pathlib.Path("./model").mkdir(exist_ok=True)
+
+layers = [ model.fc1, model.fc2, model.fc3 ]
+for i, layer in enumerate(layers):
+  weights = layer.weight.detach().cpu().numpy().astype(np.float32)
+  biases = layer.bias.detach().cpu().numpy().astype(np.float32)
+
+  weights.tofile(f"model/layer{i + 1}_weights.bin")
+  biases.tofile(f"model/layer{i + 1}_biases.bin")
