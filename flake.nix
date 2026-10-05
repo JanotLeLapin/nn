@@ -69,6 +69,9 @@
           python3Packages.seaborn
 
           python3Packages.python-lsp-server
+
+          pandoc
+          texliveSmall
         ];
       };
     });
