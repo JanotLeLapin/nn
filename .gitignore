@@ -6,3 +6,4 @@ nn-ikj
 *.bin
 
 mnist/
+results/
