@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
+import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 
-EXECUTABLES = ["nn", "nn-ikj", "nn-omp"]
-LABELS = ["Baseline", "I-K-J ordering", "OpenMP"]
+LABELS = {
+    "nn": "Baseline",
+    "nn-ikj": "I-K-J ordering",
+    "nn-omp": "OpenMP"
+}
 
 def total_time(df: pd.DataFrame) -> pd.Series:
     num = df.select_dtypes(include="number")
@@ -16,7 +20,7 @@ def exe_path(exe: str) -> str:
 
 
 means, stds, labels = [], [], []
-for exe, label in zip(EXECUTABLES, LABELS):
+for exe, label in zip(sys.argv[1:], [LABELS[arg] for arg in sys.argv[1:]]):
     df = pd.read_csv(exe_path(exe))
     totals = total_time(df.dropna(how="all"))
     labels.append(label)
