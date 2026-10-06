@@ -19,25 +19,34 @@ ts_ns (struct timespec ts)
 int
 main (int argc, char **argv)
 {
-  float *img, max_value = 0.0;
+  float *img, max_value;
   nn_network_t net;
-  size_t i, max_idx;
+  size_t i, j, max_idx;
   block_t *b;
   instr_t instr;
+  FILE *csv;
   struct timespec ts;
-  uint64_t loop_start, loop_end, layer_start, layer_end;
+  uint64_t layer_start, layer_end;
 
-  if (2 > argc)
+  if (3 > argc)
     {
-      fprintf (stderr, "usage: %s <path_to_image>\n", argv[0]);
+      fprintf (stderr, "usage: %s <path_to_csv> [path_to_images...]\n",
+               argv[0]);
+      return -1;
+    }
+
+  csv = fopen (argv[1], "wa");
+  if (0 == csv)
+    {
+      fprintf (stderr, "could not open csv file\n");
       return -1;
     }
 
   img = malloc (784 * sizeof (float));
-  if (-1 == image_load (img, 28, 28, argv[1]))
+  if (0 == img)
     {
-      fprintf (stderr, "could not load image\n");
-      free (img);
+      fprintf (stderr, "could not alloc img buffer\n");
+      fclose (csv);
       return -1;
     }
 
@@ -61,39 +70,56 @@ main (int argc, char **argv)
   block_load (net.buffer.data, vec_get (&net.blocks, 10),
               "model/layer3_biases.bin");
 
-  memcpy (net.buffer.data, img, 784 * sizeof (float));
-
-  // instr_summary (net.instrs.len, net.instrs.data);
-  clock_gettime (CLOCK_MONOTONIC, &ts);
-  loop_start = ts_ns (ts);
   for (i = 0; i < net.instrs.len; i++)
     {
-      clock_gettime (CLOCK_MONOTONIC, &ts);
-      layer_start = ts_ns (ts);
-      instr = *(instr_t *)vec_get (&net.instrs, i);
-      instr_forward (net.buffer.data, instr, net.blocks.data);
-      clock_gettime (CLOCK_MONOTONIC, &ts);
-      layer_end = ts_ns (ts);
-
-      fprintf (stderr, "layer %ld took %.3fms\n", i + 1,
-               (double)(layer_end - layer_start) / 1e6);
+      fprintf (csv, "layer_%ld,", i + 1);
     }
-  clock_gettime (CLOCK_MONOTONIC, &ts);
-  loop_end = ts_ns (ts);
+  fprintf (csv, "\n");
 
-  b = vec_get (&net.blocks, net.blocks.len - 1);
-  for (i = 0; i < 10; i++)
+  // instr_summary (net.instrs.len, net.instrs.data);
+
+  for (i = 2; i < argc; i++)
     {
-      if (net.buffer.data[b->offset + i] > max_value)
+      if (-1 == image_load (img, 28, 28, argv[i]))
         {
-          max_idx = i;
-          max_value = net.buffer.data[b->offset + i];
+          fprintf (stderr, "could not load image %s, skipping\n", argv[i]);
+          continue;
         }
-    }
+      memcpy (net.buffer.data, img, 784 * sizeof (float));
 
-  fprintf (stdout, "prediction: %ld (took %.3fms)\n", max_idx,
-           (double)(loop_end - loop_start) / 1e6);
+      for (j = 0; j < net.instrs.len; j++)
+        {
+          clock_gettime (CLOCK_MONOTONIC, &ts);
+          layer_start = ts_ns (ts);
+          instr = *(instr_t *)vec_get (&net.instrs, j);
+          instr_forward (net.buffer.data, instr, net.blocks.data);
+          clock_gettime (CLOCK_MONOTONIC, &ts);
+          layer_end = ts_ns (ts);
+
+          fprintf (csv, "%f,", (double)(layer_end - layer_start) / 1e6);
+
+          fprintf (stderr, "%s: layer %ld took %.3fms\n", argv[i], j + 1,
+                   (double)(layer_end - layer_start) / 1e6);
+        }
+
+      fprintf (csv, "\n");
+
+      b = vec_get (&net.blocks, net.blocks.len - 1);
+      max_idx = 0;
+      max_value = 0.0;
+      for (j = 0; j < 10; j++)
+        {
+          if (net.buffer.data[b->offset + j] > max_value)
+            {
+              max_idx = j;
+              max_value = net.buffer.data[b->offset + j];
+            }
+        }
+
+      fprintf (stdout, "%s: prediction: %ld\n", argv[i], max_idx);
+    }
 
   nn_network_free (&net);
+  fclose (csv);
   free (img);
 }
