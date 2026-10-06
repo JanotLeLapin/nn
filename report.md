@@ -56,11 +56,14 @@ performs by itself `100,352` FLOPs, so I compared the two binaries:
 
 |              | max time   | min time   |
 |--------------|------------|------------|
-| `layer1-omp` | `8.0` ms   | `2.0` ms   |
-| `layer1`     | `0.116` ms | `0.163` ms |
+| `layer1-omp` | `5.848` ms | `0.117` ms |
+| `layer1`     | `0.112` ms | `0.103` ms |
 
-The parallelized layer still takes several orders of magnitude more time than
-the serialied one.
+Although the actual distance between the two measurements isn't nearly as bad,
+the parallelized version is still extremely inconsistent and thus makes it
+inefficient for this task.
+
+![Baseline compared to parallel](./results/baseline-omp.png)
 
 ### GEMM loop ordering
 
@@ -72,3 +75,5 @@ execution times ranging from `0.036` and `0.087` milliseconds. That's
 The two implementations are mathematically identical, but with this new
 ordering, matrix elements are accessed sequentially in memory, which improves
 cache locality.
+
+![Baseline compared to reordered GEMM kernel](./results/baseline-ikj.png)
