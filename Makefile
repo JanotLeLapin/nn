@@ -4,7 +4,9 @@ LDFLAGS := -lm
 
 INSTR_HEADERS := instruction.h instr/softmax.h instr/util.h instr/gemm.h instr/transpose.h instr/relu.h
 
-.PHONY: test clean re
+.PHONY: all test clean re
+
+all: nn nn-omp nn-ikj
 
 nn: main.o vec.o image.o block.o nn.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
