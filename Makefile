@@ -8,6 +8,12 @@ INSTR_HEADERS := instruction.h instr/softmax.h instr/util.h instr/gemm.h instr/t
 
 all: nn nn-omp nn-ikj
 
+report.pdf: all
+	./scripts/bench.py
+	./scripts/plot.py ./results/baseline-omp.png nn nn-omp
+	./scripts/plot.py ./results/baseline-ikj.png nn nn-ikj
+	pandoc report.md -o report.pdf
+
 nn: main.o vec.o image.o block.o nn.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
