@@ -20,7 +20,7 @@ def exe_path(exe: str) -> str:
 
 
 means, stds, labels = [], [], []
-for exe, label in zip(sys.argv[1:], [LABELS[arg] for arg in sys.argv[1:]]):
+for exe, label in zip(sys.argv[2:], [LABELS[arg] for arg in sys.argv[2:]]):
     df = pd.read_csv(exe_path(exe))
     totals = total_time(df.dropna(how="all"))
     labels.append(label)
@@ -55,4 +55,4 @@ ax.set_ylabel("Total inference time (milliseconds)")
 ax.set_title("Mean total inference time per run (±1 std dev)")
 ax.grid(axis="y", linestyle=":", alpha=0.5)
 fig.tight_layout()
-fig.savefig("results/timing.png", dpi=200)
+fig.savefig(sys.argv[1], dpi=200)
