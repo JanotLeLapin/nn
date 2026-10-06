@@ -1,6 +1,6 @@
 # Report
 
-Currently (commith hash `1163d8933c3c4d37d944fc96413c7d9589e16956`, 2026-10-05) the
+Currently (commit hash `1163d8933c3c4d37d944fc96413c7d9589e16956`, 2026-10-05) the
 inference engine works, but it's somewhat buggy and unsafe. Because of the
 recent massive architectural change (every block now points to an offset in a
 big float buffer) that was definitely NOT thought through, there's now a wide
@@ -33,7 +33,7 @@ I've recorded the performance of the inference loop for the following network:
 ```c
 nn_layer_input (&net, 784);
 nn_layer_dense (&net, 784, 128, 0, 0, ACT_TYPE_RELU); // 100,352 muls
-nn_layer_dense (&net, 128, 64, 0, 0, ACT_TYPE_RELU); // 8.192 muls
+nn_layer_dense (&net, 128, 64, 0, 0, ACT_TYPE_RELU); // 8,192 muls
 nn_layer_dense (&net, 64, 10, 0, 0, ACT_TYPE_SOFTMAX); // 640 muls
 // TOTAL: 109,184 muls
 ```
@@ -46,7 +46,7 @@ It consistently took between `0.125` and `0.185` milliseconds, that's roughly
 I tried to make the GEMM instruction run in parallel with OpenMP. The
 performance of the inference loop became highly inconsistent, with
 execution times ranging from anywhere between 4 and 17 milliseconds. That's
-roughly `27,296,000` to `~6,422,588` floating-point ops per second, or in
+roughly `27,296,000` to `~6,422,588` floating-point ops per second, or on
 average ~**10,4 MFLOP**/s.
 
 I think `109,184` FLOPs isn't nearly enough to make thread synchronization
