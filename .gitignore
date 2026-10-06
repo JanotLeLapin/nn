@@ -4,6 +4,8 @@ nn-ikj
 
 *.o
 *.bin
+*.pth
 
 mnist/
 results/
+report.pdf
